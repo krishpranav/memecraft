@@ -1,6 +1,6 @@
 #include "WorldGenerator.hpp"
 #include "Chunk.hpp"
-
+#include "BlockRegistry.hpp"
 #include <cmath>
 
 WorldGenerator::WorldGenerator(uint64_t seed_) : seed(seed_) {}
@@ -31,4 +31,5 @@ void WorldGenerator::generate(Chunk& chunk) {
     }
 
     chunk.generated = true;
+    chunk.dirty = true;
 }

@@ -1,17 +1,27 @@
-//
 // Created by Krisna Pranav on 21/12/25.
-//
 
 #include "Window.hpp"
 #include "engine/core/Logger.hpp"
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
+#include <glad/glad.h>
 #include <stdexcept>
 
-Window::Window(int width, int height, const std::string &title) {
+Window::Window(int width, int height, const std::string& title) {
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    // --- OpenGL 3.3 Core (macOS-safe) ---
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
     window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (!window) {
@@ -19,7 +29,20 @@ Window::Window(int width, int height, const std::string &title) {
         throw std::runtime_error("Failed to create GLFW window");
     }
 
-    Logger::log(LogLevel::Info, "Window created");
+    glfwMakeContextCurrent(window);
+
+    // --- GLAD INIT ---
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        throw std::runtime_error("Failed to initialize GLAD");
+    }
+
+    // --- REQUIRED: VIEWPORT ---
+    glViewport(0, 0, width, height);
+
+    // --- VSYNC (stable frame presentation) ---
+    glfwSwapInterval(1);
+
+    Logger::log(LogLevel::Info, "OpenGL context created");
 }
 
 Window::~Window() {
@@ -37,5 +60,5 @@ void Window::pollEvents() {
 }
 
 void Window::swapBuffers() {
-    // TODO
+    glfwSwapBuffers(window);
 }
