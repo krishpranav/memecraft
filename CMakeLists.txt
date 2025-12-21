@@ -25,8 +25,17 @@ set(PLATFORM_SOURCES
         engine/platform/Window.cpp
 )
 
+set(RENDERING_SOURCES
+        engine/rendering/Mesh.hpp
+        engine/rendering/Vertex.hpp
+)
+
 set(THREADING_SOURCES
         engine/threading/JobSystem.cpp
+)
+
+set(WORLD_ENGINE_SOURCES
+        engine/world/WorldSystem.cpp
 )
 
 set(WORLD_SOURCES
@@ -34,6 +43,7 @@ set(WORLD_SOURCES
         game/world/WorldGenerator.cpp
         game/world/ChunkManager.cpp
         game/world/BlockRegistry.cpp
+        game/world/Mesher.cpp
 )
 
 add_executable(memecraft
