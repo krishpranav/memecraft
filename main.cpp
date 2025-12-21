@@ -9,7 +9,7 @@ int main() {
 
     Application app;
     app.run();
-    
+
     JobSystem::shutdown();
     return 0;
 }
