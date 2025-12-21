@@ -14,7 +14,6 @@ Window::Window(int width, int height, const std::string& title) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
 
-    // --- OpenGL 3.3 Core (macOS-safe) ---
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -31,15 +30,12 @@ Window::Window(int width, int height, const std::string& title) {
 
     glfwMakeContextCurrent(window);
 
-    // --- GLAD INIT ---
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
-    // --- REQUIRED: VIEWPORT ---
     glViewport(0, 0, width, height);
 
-    // --- VSYNC (stable frame presentation) ---
     glfwSwapInterval(1);
 
     Logger::log(LogLevel::Info, "OpenGL context created");

@@ -16,8 +16,16 @@ public:
     const glm::mat4& view() const;
     const glm::mat4& projection() const;
 
+    const glm::vec3& getPosition() const;
+
 private:
-    glm::mat4 viewMat{};
-    glm::mat4 projMat{};
-    glm::vec3 position{};
+    glm::vec3 position{0};
+    glm::vec3 forward{0,0,-1};
+    glm::vec3 up{0,1,0};
+    float aspectRatio = 1.0f;
+
+    glm::mat4 viewMat{1.0f};
+    glm::mat4 projMat{1.0f};
+
+    void updateView();
 };

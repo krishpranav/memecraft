@@ -5,25 +5,49 @@
 #include "Camera.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(float aspect) {
+Camera::Camera(float aspect)
+    : aspectRatio(aspect)
+{
     projMat = glm::perspective(
         glm::radians(70.0f),
-        aspect,
+        aspectRatio,
         0.1f,
-        1000.0f
+        2000.0f
     );
 
-    position = {0.0f, 0.0f, 0.0f};
-    viewMat  = glm::mat4(1.0f);
+    position = { 0.0f, 80.0f, 0.0f };
+    forward  = { 0.0f, -1.0f, -1.0f };
+    up       = { 0.0f,  1.0f,  0.0f };
+
+    updateView();
 }
 
 void Camera::setPosition(const glm::vec3& pos) {
     position = pos;
+    updateView();
 }
 
 void Camera::lookAt(const glm::vec3& target) {
-    viewMat = glm::lookAt(position, target, {0,1,0});
+    forward = glm::normalize(target - position);
+    updateView();
 }
 
-const glm::mat4& Camera::view() const { return viewMat; }
-const glm::mat4& Camera::projection() const { return projMat; }
+void Camera::updateView() {
+    viewMat = glm::lookAt(
+        position,
+        position + forward,
+        up
+    );
+}
+
+const glm::mat4& Camera::view() const {
+    return viewMat;
+}
+
+const glm::mat4& Camera::projection() const {
+    return projMat;
+}
+
+const glm::vec3& Camera::getPosition() const {
+    return position;
+}

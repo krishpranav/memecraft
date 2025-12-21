@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <unordered_map>
+#include <memory>
 
 void GameLoop::run() {
     Window window(
@@ -33,32 +34,35 @@ void GameLoop::run() {
     std::unordered_map<Chunk*, std::unique_ptr<GLMesh>> gpuMeshes;
 
     renderer.camera().setPosition({ 32.0f, 80.0f, 32.0f });
-    renderer.camera().lookAt({ 32.0f, 0.0f, 32.0f });
+    renderer.camera().lookAt({ 48.0f, 64.0f, 48.0f });
 
     Time::init();
 
     while (!window.shouldClose()) {
         Time::update();
 
-        world.update(playerChunkX, playerChunkZ);
-        playerChunkX++;
+        const glm::vec3& camPos = renderer.camera().getPosition();
+        int camChunkX = static_cast<int>(camPos.x) / CHUNK_SIZE_X;
+        int camChunkZ = static_cast<int>(camPos.z) / CHUNK_SIZE_Z;
+
+        world.update(camChunkX, camChunkZ);
 
         world.forEachChunk([&](Chunk& chunk) {
-            if (chunk.dirty) {
-                mesher.buildMesh(chunk);
-                chunk.dirty = false;
+            if (!chunk.generated || !chunk.dirty) return;
 
-                Logger::log(
-                    LogLevel::Info,
-                    "Chunk vertices: " + std::to_string(chunk.mesh.vertices.size())
-                );
+            mesher.buildMesh(chunk);
+            chunk.dirty = false;
 
-                auto& meshPtr = gpuMeshes[&chunk];
-                if (!meshPtr) {
-                    meshPtr = std::make_unique<GLMesh>();
-                }
-                meshPtr->upload(chunk.mesh);
+            Logger::log(
+                LogLevel::Info,
+                "Chunk vertices: " + std::to_string(chunk.mesh.vertices.size())
+            );
+
+            auto& meshPtr = gpuMeshes[&chunk];
+            if (!meshPtr) {
+                meshPtr = std::make_unique<GLMesh>();
             }
+            meshPtr->upload(chunk.mesh);
         });
 
         renderer.beginFrame();
