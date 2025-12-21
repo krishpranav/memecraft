@@ -1,14 +1,15 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(int x_, int z_) : x(x_), z(z_) {
+Chunk::Chunk(int x_, int z_) noexcept
+    : x(x_), z(z_) {
     blocks.fill(0);
 }
 
-BlockID Chunk::get(int lx, int ly, int lz) const {
+BlockID Chunk::get(int lx, int ly, int lz) const noexcept {
     return blocks[index(lx, ly, lz)];
 }
 
-void Chunk::set(int lx, int ly, int lz, BlockID id) {
+void Chunk::set(int lx, int ly, int lz, BlockID id) noexcept {
     blocks[index(lx, ly, lz)] = id;
     dirty = true;
 }
