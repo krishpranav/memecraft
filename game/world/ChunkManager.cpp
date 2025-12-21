@@ -22,6 +22,12 @@ void ChunkManager::update(int px, int pz) {
     }
 }
 
+void ChunkManager::forEachChunk(const std::function<void(Chunk &)> &fn) {
+    for (auto& [_, chunk] : chunks ) {
+        fn(*chunk);
+    }
+}
+
 Chunk* ChunkManager::getChunk(int x, int z) {
     auto it = chunks.find(key(x, z));
     return it != chunks.end() ? it->second.get() : nullptr;
