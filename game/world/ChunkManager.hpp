@@ -8,11 +8,13 @@
 #include "WorldGenerator.hpp"
 #include <unordered_map>
 #include <memory>
+#include <functional>
 
 class ChunkManager {
 public:
     explicit ChunkManager(uint64_t seed);
     void update(int playerChunkX, int playerChunkZ);
+    void forEachChunk(const std::function<void(Chunk&)>& fn);
 
     Chunk* getChunk(int x, int z);
 
