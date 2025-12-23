@@ -1,7 +1,7 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(int x_, int z_) noexcept
-    : x(x_), z(z_) {
+Chunk::Chunk(int cx, int cy, int cz) noexcept
+    : x(cx), y(cy), z(cz) {
     blocks.fill(0);
 }
 
