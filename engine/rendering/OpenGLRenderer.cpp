@@ -15,7 +15,8 @@ OpenGLRenderer::OpenGLRenderer(int width, int height)
 
 	glDisable(GL_CULL_FACE);
 
-    glClearColor(0.53f, 0.75f, 0.98f, 1.0f);
+    // glClearColor(0.53f, 0.75f, 0.98f, 1.0f);
+    glClearColor(0.60f, 0.78f, 0.92f, 1.0f);
 
     auto vert = loadTextFile("shaders/voxel.vert");
     auto frag = loadTextFile("shaders/voxel.frag");
