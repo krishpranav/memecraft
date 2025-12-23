@@ -17,6 +17,7 @@ public:
     const glm::mat4& projection() const;
 
     const glm::vec3& getPosition() const;
+    const glm::vec3& getForward() const;
 
 private:
     glm::vec3 position{0};

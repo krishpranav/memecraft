@@ -51,3 +51,7 @@ const glm::mat4& Camera::projection() const {
 const glm::vec3& Camera::getPosition() const {
     return position;
 }
+
+const glm::vec3& Camera::getForward() const {
+    return forward;
+}
