@@ -1,7 +1,3 @@
-//
-// Created by Krisna Pranav on 21/12/25.
-//
-
 #pragma once
 
 #include "Chunk.hpp"
@@ -13,17 +9,37 @@
 class ChunkManager {
 public:
     explicit ChunkManager(uint64_t seed);
-    void update(int playerChunkX, int playerChunkZ);
-    void forEachChunk(const std::function<void(Chunk&)>& fn);
 
-    Chunk* getChunk(int x, int z);
+    void update(int pcx, int pcz);
+    void forEachChunk(const std::function<void(Chunk&)>& fn) const;
+
+    Chunk* getChunk(int cx, int cy, int cz) const;
+
+    BlockID getBlock(int wx, int wy, int wz) const;
+    void setBlock(int wx, int wy, int wz, BlockID id);
+
+    int getSurfaceHeight(int wx, int wz) const;
+    int getTerrainHeight(int wx, int wz) const;
+
+    static int floorDiv(int a, int b) {
+        return (a >= 0) ? a / b : ((a + 1) / b - 1);
+    }
+
+    static int mod(int a, int b) {
+        int m = a % b;
+        return m < 0 ? m + b : m;
+    }
 
 private:
-    std::unordered_map<long long, std::unique_ptr<Chunk>> chunks;
+    struct Column {
+        std::unordered_map<int, std::unique_ptr<Chunk>> vertical;
+    };
+
+    std::unordered_map<long long, Column> columns;
     WorldGenerator generator;
 
-    long long key(int x, int z) const {
-        return (static_cast<long long>(x) << 32) |
-            static_cast<unsigned int>(z);
+    static long long key(int cx, int cz) {
+        return (static_cast<long long>(cx) << 32) |
+               static_cast<unsigned int>(cz);
     }
 };
