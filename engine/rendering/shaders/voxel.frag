@@ -1,19 +1,33 @@
 #version 330 core
-
-in vec2 vUV;
 out vec4 FragColor;
 
-vec3 grassTop  = vec3(0.30, 0.60, 0.30);
-vec3 dirtSide  = vec3(0.45, 0.30, 0.15);
-vec3 dirtBottom= vec3(0.35, 0.25, 0.15);
+in vec3 vWorldPos;
+in float vFace;
+
+uniform vec3 u_CameraPos;
+
+vec3 lightDir = normalize(vec3(0.4, 1.0, 0.6));
+vec3 skyColor = vec3(0.55, 0.75, 0.95);
+vec3 fogColor = skyColor;
 
 void main() {
-    // vUV.y encodes face type (explained below)
-    if (vUV.y < 0.33) {
-        FragColor = vec4(grassTop, 1.0);
-    } else if (vUV.y < 0.66) {
-        FragColor = vec4(dirtSide, 1.0);
-    } else {
-        FragColor = vec4(dirtBottom, 1.0);
-    }
+
+    vec3 color = vec3(0.35, 0.65, 0.35);
+
+    float faceShade = 1.0;
+    if (vFace == 0.0) faceShade = 1.0;
+    else if (vFace == 1.0) faceShade = 0.55;
+    else faceShade = 0.8;
+
+    float diff = clamp(dot(lightDir, vec3(0,1,0)), 0.2, 1.0);
+    vec3 lit = color * diff * faceShade;
+
+    float dist = length(vWorldPos - u_CameraPos);
+    float fog = clamp(dist / 120.0, 0.0, 1.0);
+
+    vec3 finalColor = mix(lit, fogColor, fog);
+
+    finalColor = pow(finalColor, vec3(1.0 / 2.2));
+
+    FragColor = vec4(finalColor, 1.0);
 }

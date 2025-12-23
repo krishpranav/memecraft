@@ -51,6 +51,13 @@ void GameLoop::run() {
 
     Time::init();
 
+    bool leftMouseDown = false;
+    bool rightMouseDown = false;
+
+    float breakCooldown = 0.0f;
+    float placeCooldown = 0.0f;
+    constexpr float BLOCK_DELAY = 0.15f;
+
     while (!window.shouldClose()) {
         Time::update();
         float dt = std::min(Time::deltaTime(), 0.05f);
@@ -72,6 +79,56 @@ void GameLoop::run() {
 
         renderer.camera().setPosition(player.getEyePosition());
         renderer.camera().lookAt(player.getEyePosition() + player.getForward());
+
+        breakCooldown -= dt;
+        placeCooldown -= dt;
+
+        RaycastHit hit;
+        bool hasHit = raycastBlock(
+            player.getEyePosition(),
+            player.getForward(),
+            6.0f,
+            world,
+            hit
+        );
+
+        bool leftPressed = glfwGetMouseButton(glfwGetCurrentContext(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+        bool rightPressed = glfwGetMouseButton(glfwGetCurrentContext(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
+        if (hasHit && leftPressed && !leftMouseDown && breakCooldown <= 0.0f) {
+            world.setBlock(hit.wx, hit.wy, hit.wz, 0); // Air
+            breakCooldown = BLOCK_DELAY;
+        }
+
+        if (hasHit && rightPressed && !rightMouseDown && placeCooldown <= 0.0f) {
+
+            static const glm::ivec3 faceOffset[6] = {
+                {-1,0,0}, {1,0,0},
+                {0,-1,0}, {0,1,0},
+                {0,0,-1}, {0,0,1}
+            };
+
+            if (hit.face >= 0 && hit.face < 6) {
+                glm::ivec3 o = faceOffset[hit.face];
+
+                int px = hit.wx + o.x;
+                int py = hit.wy + o.y;
+                int pz = hit.wz + o.z;
+
+                AABB blockBox{
+                    glm::vec3(px, py, pz),
+                    glm::vec3(px + 1, py + 1, pz + 1)
+                };
+
+                if (!player.getBoundingBox().intersects(blockBox)) {
+                    world.setBlock(px, py, pz, 3); // Grass
+                    placeCooldown = BLOCK_DELAY;
+                }
+            }
+        }
+
+        leftMouseDown = leftPressed;
+        rightMouseDown = rightPressed;
 
         glm::vec3 p = player.getPosition();
         world.update(

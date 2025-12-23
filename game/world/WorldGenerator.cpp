@@ -40,7 +40,7 @@ static int heightAt(int x, int z, uint64_t seed, Biome biome) {
     double hills = fbm(wx * 0.01, wz * 0.01, seed + 300) * 30.0;
 
     double detail = fbm(wx * 0.05, wz * 0.05, seed + 900) * 6.0;
-    
+
     double biomeBias  = 0.0;
     double biomeScale = 1.0;
 
