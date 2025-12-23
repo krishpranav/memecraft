@@ -18,6 +18,14 @@ public:
     void pollEvents();
     void swapBuffers();
 
+    bool isKeyPressed(int key) const;
+    void getMouseDelta(double& dx, double& dy);
+    void setCursorLocked(bool locked);
+
 private:
     GLFWwindow* window = nullptr;
+
+    mutable double lastMouseX = 0.0;
+    mutable double lastMouseY = 0.0;
+    mutable bool firstMouse = true;
 };

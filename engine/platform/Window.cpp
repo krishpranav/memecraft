@@ -1,10 +1,5 @@
-// Created by Krisna Pranav on 21/12/25.
-
 #include "Window.hpp"
 #include "engine/core/Logger.hpp"
-
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 
 #include <glad/glad.h>
 #include <stdexcept>
@@ -35,8 +30,10 @@ Window::Window(int width, int height, const std::string& title) {
     }
 
     glViewport(0, 0, width, height);
-
     glfwSwapInterval(1);
+
+    // Capture mouse
+    setCursorLocked(true);
 
     Logger::log(LogLevel::Info, "OpenGL context created");
 }
@@ -57,4 +54,34 @@ void Window::pollEvents() {
 
 void Window::swapBuffers() {
     glfwSwapBuffers(window);
+}
+
+bool Window::isKeyPressed(int key) const {
+    return glfwGetKey(window, key) == GLFW_PRESS;
+}
+
+void Window::setCursorLocked(bool locked) {
+    glfwSetInputMode(
+        window,
+        GLFW_CURSOR,
+        locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL
+    );
+    firstMouse = true;
+}
+
+void Window::getMouseDelta(double& dx, double& dy) {
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    if (firstMouse) {
+        lastMouseX = x;
+        lastMouseY = y;
+        firstMouse = false;
+    }
+
+    dx = x - lastMouseX;
+    dy = lastMouseY - y; // inverted Y
+
+    lastMouseX = x;
+    lastMouseY = y;
 }
