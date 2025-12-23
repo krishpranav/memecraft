@@ -37,11 +37,20 @@ void GLMesh::upload(const Mesh& mesh) {
         GL_STATIC_DRAW
     );
 
+    // position
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0, 3, GL_FLOAT, GL_FALSE,
         sizeof(Vertex),
         reinterpret_cast<void*>(0)
+    );
+
+    // UV
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+        1, 2, GL_FLOAT, GL_FALSE,
+        sizeof(Vertex),
+        reinterpret_cast<void*>(offsetof(Vertex, u))
     );
 
     glBindVertexArray(0);
@@ -54,7 +63,6 @@ void GLMesh::draw() const {
     glDrawElements(
         GL_TRIANGLES,
         static_cast<GLsizei>(indexCount),
-        // indexCount,
         GL_UNSIGNED_INT,
         nullptr
     );
