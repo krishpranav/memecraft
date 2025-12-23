@@ -3,7 +3,6 @@
 //
 
 #pragma once
-
 #include "Chunk.hpp"
 #include <cstdint>
 
@@ -11,6 +10,7 @@ class WorldGenerator {
 public:
     explicit WorldGenerator(uint64_t seed);
     void generate(Chunk& chunk);
+    int getHeightAt(int wx, int wz) const;
 
 private:
     uint64_t seed;
