@@ -14,9 +14,11 @@ void BlockRegistry::init() {
     blocks[3] = {3, "Grass", true};
     blocks[4] = {4, "Sand",  true};
     blocks[5] = {5, "Water", false};
+
     blocks[6] = {6, "Log",   true};
     blocks[7] = {7, "Leaves",false};
     blocks[8] = {8, "Snow",  true};
+    blocks[9] = {9, "TallGrass", false};
 }
 
 const Block& BlockRegistry::get(BlockID id) {

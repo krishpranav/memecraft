@@ -19,15 +19,14 @@ static double baseNoise(double x, double z, uint64_t seed) {
 
 static double fbm(double x, double z, uint64_t seed) {
     double value = 0.0;
-    double amplitude = 1.0;
-    double frequency = 1.0;
+    double amp = 1.0;
+    double freq = 1.0;
 
     for (int i = 0; i < 5; ++i) {
-        value += baseNoise(x * frequency, z * frequency, seed + i * 101) * amplitude;
-        amplitude *= 0.5;
-        frequency *= 2.0;
+        value += baseNoise(x * freq, z * freq, seed + i * 101) * amp;
+        amp *= 0.5;
+        freq *= 2.0;
     }
-
     return value;
 }
 
@@ -36,40 +35,20 @@ static int heightAt(int x, int z, uint64_t seed, Biome biome) {
     double wz = z + fbm(x * 0.01, z * 0.01, seed + 2000) * 40.0;
 
     double continental = fbm(wx * 0.001, wz * 0.001, seed) * 60.0;
+    double hills       = fbm(wx * 0.01,  wz * 0.01,  seed + 300) * 30.0;
+    double detail      = fbm(wx * 0.05,  wz * 0.05,  seed + 900) * 6.0;
 
-    double hills = fbm(wx * 0.01, wz * 0.01, seed + 300) * 30.0;
-
-    double detail = fbm(wx * 0.05, wz * 0.05, seed + 900) * 6.0;
-
-    double biomeBias  = 0.0;
-    double biomeScale = 1.0;
+    double bias = 0.0, scale = 1.0;
 
     switch (biome) {
-        case Biome::Ocean:
-            biomeBias  = -30.0;
-            biomeScale = 0.3;
-            break;
-        case Biome::Plains:
-            biomeScale = 0.6;
-            break;
-        case Biome::Forest:
-            biomeBias  = 6.0;
-            biomeScale = 0.9;
-            break;
-        case Biome::Mountains:
-            biomeBias  = 40.0;
-            biomeScale = 1.5;
-            break;
+        case Biome::Ocean:     bias = -30.0; scale = 0.3; break;
+        case Biome::Plains:                     scale = 0.6; break;
+        case Biome::Forest:    bias = 6.0;  scale = 0.9; break;
+        case Biome::Mountains: bias = 40.0; scale = 1.5; break;
     }
 
-    double height =
-        64.0 +
-        continental * biomeScale +
-        hills       * biomeScale +
-        detail +
-        biomeBias;
-
-    return static_cast<int>(clamp(height, 5.0, MAX_HEIGHT));
+    double h = 64.0 + continental * scale + hills * scale + detail + bias;
+    return static_cast<int>(clamp(h, 5.0, MAX_HEIGHT));
 }
 
 WorldGenerator::WorldGenerator(uint64_t seed_)
@@ -91,48 +70,60 @@ void WorldGenerator::generate(Chunk& chunk) {
             int surface = heightAt(wx, wz, seed, biome);
 
             for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
-
                 int wy = baseY + y;
                 BlockID id = 0;
 
                 if (wy <= surface) {
-
-                    if (biome == Biome::Mountains && wy > surface - 2 && surface > 140) {
+                    if (biome == Biome::Mountains && wy > surface - 2 && surface > 140)
                         id = 1;
-                    }
-                    else if (wy == surface) {
+                    else if (wy == surface)
                         id = (biome == Biome::Ocean) ? 4 : 3;
-                    }
-                    else if (wy > surface - 4) {
+                    else if (wy > surface - 4)
                         id = 2;
-                    }
-                    else {
+                    else
                         id = 1;
-                    }
                 }
 
-                if (wy > surface && wy <= SEA_LEVEL && biome == Biome::Ocean) {
+                if (wy > surface && wy <= SEA_LEVEL && biome == Biome::Ocean)
                     id = 5;
-                }
 
-                if (id != 0) {
+                if (id != 0)
                     chunk.set(x, y, z, id);
+            }
+
+            // 🌲 TREE
+            if (biome == Biome::Forest && surface > SEA_LEVEL + 2) {
+                int localSurface = surface - baseY;
+                if (localSurface >= 0 && localSurface < CHUNK_SIZE_Y) {
+                    uint64_t h =
+                        (uint64_t)wx * 734287u ^
+                        (uint64_t)wz * 912931u ^
+                        seed;
+
+                    if ((h & 63u) == 0u) {
+                        TreeGenerator::placeTree(
+                            chunk,
+                            x,
+                            localSurface + 1,
+                            z
+                        );
+                    }
                 }
             }
 
-            if (biome == Biome::Forest && surface > SEA_LEVEL + 2) {
-                uint64_t hash =
-                    static_cast<uint64_t>(wx) * 734287u ^
-                    static_cast<uint64_t>(wz) * 912931u ^
+            // 🌾 GRASS (FIXED)
+            int grassLocalY = surface + 1 - baseY;
+            if (biome != Biome::Ocean &&
+                grassLocalY >= 0 &&
+                grassLocalY < CHUNK_SIZE_Y)
+            {
+                uint64_t h =
+                    (uint64_t)wx * 928371u ^
+                    (uint64_t)wz * 19349663u ^
                     seed;
 
-                if ((hash & 63u) == 0u) {
-                    TreeGenerator::placeTree(
-                        chunk,
-                        x,
-                        surface - baseY + 1,
-                        z
-                    );
+                if ((h & 31u) == 0u) {
+                    chunk.set(x, grassLocalY, z, 9);
                 }
             }
         }

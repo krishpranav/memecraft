@@ -9,6 +9,10 @@ enum Face {
     PZ, NZ
 };
 
+static bool isCrossPlant(BlockID id) {
+    return id == 9;
+}
+
 bool Mesher::isAir(const Chunk& chunk, int x, int y, int z) const {
     if (y < 0 || y >= CHUNK_SIZE_Y)
         return true;
@@ -66,7 +70,18 @@ void Mesher::buildMesh(Chunk& chunk) {
     for (int x = 0; x < CHUNK_SIZE_X; ++x) {
         for (int y = 0; y < CHUNK_SIZE_Y; ++y) {
             for (int z = 0; z < CHUNK_SIZE_Z; ++z) {
-                if (chunk.get(x, y, z) == 0) continue;
+                // if (chunk.get(x, y, z) == 0) continue;
+
+                BlockID id = chunk.get(x, y, z);
+                if (id == 0) continue;
+
+                if (isCrossPlant(id)) {
+                    addFace(chunk, x, y, z, PX);
+                    addFace(chunk, x, y, z, NX);
+                    addFace(chunk, x, y, z, PZ);
+                    addFace(chunk, x, y, z, NZ);
+                    continue;
+                }
 
                 if (isAir(chunk, x + 1, y, z)) addFace(chunk, x, y, z, PX);
                 if (isAir(chunk, x - 1, y, z)) addFace(chunk, x, y, z, NX);

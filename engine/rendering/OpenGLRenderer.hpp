@@ -11,6 +11,7 @@
 class OpenGLRenderer : public Renderer {
 public:
     OpenGLRenderer(int width, int height);
+    ~OpenGLRenderer();
 
     void beginFrame() override;
     void endFrame() override;
