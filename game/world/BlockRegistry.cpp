@@ -8,10 +8,15 @@
 std::unordered_map<BlockID, Block> BlockRegistry::blocks;
 
 void BlockRegistry::init() {
-    blocks[0] = {0, "Air", false};
-    blocks[0] = {1, "Stone", true};
-    blocks[0] = {2, "Dirt", true};
-    blocks[0] = {3, "Grass", true};
+    blocks[0] = {0, "Air",   false};
+    blocks[1] = {1, "Stone", true};
+    blocks[2] = {2, "Dirt",  true};
+    blocks[3] = {3, "Grass", true};
+    blocks[4] = {4, "Sand",  true};
+    blocks[5] = {5, "Water", false};
+    blocks[6] = {6, "Log",   true};
+    blocks[7] = {7, "Leaves",false};
+    blocks[8] = {8, "Snow",  true};
 }
 
 const Block& BlockRegistry::get(BlockID id) {
