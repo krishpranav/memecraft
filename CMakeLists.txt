@@ -54,6 +54,14 @@ set(WORLD_SOURCES
         game/world/ChunkManager.cpp
         game/world/BlockRegistry.cpp
         game/world/Mesher.cpp
+        game/world/Raycast.cpp
+        game/world/Collision.cpp
+        game/world/Biome.cpp
+        game/world/TreeGenerator.cpp
+)
+
+set(PLAYER_SOURCES
+        game/player/Player.cpp
 )
 
 set(RENDERING_SOURCES
@@ -70,6 +78,7 @@ add_executable(memecraft
         ${PLATFORM_SOURCES}
         ${THREADING_SOURCES}
         ${WORLD_SOURCES}
+        ${PLAYER_SOURCES}
         ${RENDERING_SOURCES}
 )
 
